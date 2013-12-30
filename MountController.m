@@ -20,16 +20,27 @@ NSString *_diskFilePath = @"/Users/ilia/Desktop/test.sparsebundle";
 }
 
 - (IBAction)mountRequested:(id)sender{
-    NSLog(@"Maleleiii - %@\n", [diskUnlockPassword objectValue]);
-    NSLog(@"Selected - %@", [usersList titleOfSelectedItem]);
     [statusField setObjectValue:@"Attempting to mount..."];
-    [self attemptToMount:_diskFilePath withPassword:[diskUnlockPassword objectValue]];
+    BOOL result = [self attemptToMount:_diskFilePath withPassword:[diskUnlockPassword objectValue]];
+    if (result){
+        [NSApp terminate:self];
+    }
 }
 
 - (BOOL)attemptToMount:(NSString *)diskFilePath
           withPassword:(NSString *)password {
     NSLog(@"Path: '%@'; Password: '%@'\n", diskFilePath, password);
-    
+    @try {
+        NSTask *execution = [[NSTask alloc] init];
+        [execution setLaunchPath:@"/bin/echo"];
+        [execution setArguments:[[NSArray alloc] initWithObjects:@"'123' >/tmp/777.txt", nil]];
+        [execution launch];
+        [execution waitUntilExit];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Exception - %@", [exception reason]);
+    }
+
     return NO;
 }
 
