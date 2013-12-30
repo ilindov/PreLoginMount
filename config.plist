@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Common</key>
+	<dict>
+		<key>FlagDir</key>
+		<string>/opt/PreLoginMount/flags</string>
+	</dict>
+	<key>Users</key>
+	<dict>
+		<key>ilia</key>
+		<dict>
+			<key>FullName</key>
+			<string>Iliya Lindov</string>
+			<key>DiskImage</key>
+			<string>/opt/PreLoginMount/Disks/ilia.sparsebundle</string>
+			<key>PartitionName</key>
+			<string>Home Iliya</string>
+			<key>Encrypted</key>
+			<true/>
+		</dict>
+		<key>petya</key>
+		<dict>
+			<key>FullName</key>
+			<string>Petya Lindova</string>
+			<key>DiskImage</key>
+			<string>/opt/PreLoginMount/Disks/petya.sparsebundle</string>
+			<key>PartitionName</key>
+			<string>Home Petya</string>
+			<key>Encrypted</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
