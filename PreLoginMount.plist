@@ -9,10 +9,8 @@
 	</dict>
 	<key>Users</key>
 	<dict>
-		<key>ilia</key>
+		<key>Iliya Lindov</key>
 		<dict>
-			<key>FullName</key>
-			<string>Iliya Lindov</string>
 			<key>DiskImage</key>
 			<string>/opt/PreLoginMount/Disks/ilia.sparsebundle</string>
 			<key>PartitionName</key>
@@ -20,10 +18,8 @@
 			<key>Encrypted</key>
 			<true/>
 		</dict>
-		<key>petya</key>
+		<key>Petya Lindova</key>
 		<dict>
-			<key>FullName</key>
-			<string>Petya Lindova</string>
 			<key>DiskImage</key>
 			<string>/opt/PreLoginMount/Disks/petya.sparsebundle</string>
 			<key>PartitionName</key>

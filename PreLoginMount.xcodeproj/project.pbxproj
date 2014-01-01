@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		49328AEC186DC81500873A80 /* MountController.m in Sources */ = {isa = PBXBuildFile; fileRef = 49328AEB186DC81500873A80 /* MountController.m */; };
-		4965B762186B8A10005DC1F6 /* config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4965B761186B8A10005DC1F6 /* config.plist */; };
+		4965B762186B8A10005DC1F6 /* PreLoginMount.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4965B761186B8A10005DC1F6 /* PreLoginMount.plist */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		E4963BD80BCE755900149BD0 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97319FDCFA39411CA2CEA /* main.nib */; };
@@ -20,7 +20,7 @@
 		29B97319FDCFA39411CA2CEA /* main.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = main.nib; sourceTree = "<group>"; };
 		49328AEA186DC81500873A80 /* MountController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MountController.h; sourceTree = "<group>"; };
 		49328AEB186DC81500873A80 /* MountController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MountController.m; sourceTree = "<group>"; };
-		4965B761186B8A10005DC1F6 /* config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = config.plist; sourceTree = "<group>"; };
+		4965B761186B8A10005DC1F6 /* PreLoginMount.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PreLoginMount.plist; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* PreLoginMount.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PreLoginMount.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -53,7 +53,7 @@
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				29B97319FDCFA39411CA2CEA /* main.nib */,
-				4965B761186B8A10005DC1F6 /* config.plist */,
+				4965B761186B8A10005DC1F6 /* PreLoginMount.plist */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -110,7 +110,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4965B762186B8A10005DC1F6 /* config.plist in Resources */,
+				4965B762186B8A10005DC1F6 /* PreLoginMount.plist in Resources */,
 				E4963BD80BCE755900149BD0 /* main.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
