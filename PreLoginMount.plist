@@ -4,7 +4,7 @@
 <dict>
 	<key>Common</key>
 	<dict>
-		<key>FlagDir</key>
+		<key>FlagDirectory</key>
 		<string>/opt/PreLoginMount/flags</string>
 	</dict>
 	<key>Users</key>
@@ -13,8 +13,14 @@
 		<dict>
 			<key>DiskImage</key>
 			<string>/opt/PreLoginMount/Disks/ilia.sparsebundle</string>
-			<key>PartitionName</key>
-			<string>Home Iliya</string>
+			<key>MountPoint</key>
+			<string>/Users/ilia</string>
+			<key>FsckOnMount</key>
+			<true/>
+			<key>Browseable</key>
+			<true/>
+			<key>HonorOwners</key>
+			<true/>
 			<key>Encrypted</key>
 			<true/>
 		</dict>
@@ -22,8 +28,14 @@
 		<dict>
 			<key>DiskImage</key>
 			<string>/opt/PreLoginMount/Disks/petya.sparsebundle</string>
-			<key>PartitionName</key>
-			<string>Home Petya</string>
+			<key>MountPoint</key>
+			<string>/Users/petya</string>
+			<key>FsckOnMount</key>
+			<true/>
+			<key>Browseable</key>
+			<true/>
+			<key>HonorOwners</key>
+			<true/>
 			<key>Encrypted</key>
 			<true/>
 		</dict>

@@ -6,6 +6,11 @@
 //
 //
 
+// TODO: Add verbose logging functionality
+// TODO: To be able to mount without mountPoint, i.e. in /Volumes
+
+// HINT: hdiutil attach -verbose -stdinpass -autofsck -nobrowse -owners on -mountpoint /Users/ilia ~/Desktop/test.sparsebundle
+
 #import "MountController.h"
 
 @implementation MountController
@@ -35,8 +40,14 @@ NSDictionary *usersDataStructure;
     [statusField setObjectValue:@"Attempting to mount..."];
     
     NSString *diskFilePath = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
+    NSString *mountPoint = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"MountPoint"];
+    BOOL autoFsck = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"];
     
-    BOOL result = [self attemptToMount:diskFilePath withPassword:[diskUnlockPassword objectValue]];
+    BOOL result = [self attemptToMount:diskFilePath
+                          withPassword:[diskUnlockPassword objectValue]
+                            mountPoint:mountPoint
+                              autoFsck:autoFsck];
+    
     if (result){
         [NSApp terminate:self];
     }
@@ -47,9 +58,11 @@ NSDictionary *usersDataStructure;
 }
 
 - (BOOL)attemptToMount:(NSString *)diskFilePath
-          withPassword:(NSString *)password {
+          withPassword:(NSString *)password
+            mountPoint:(NSString *)mountPoint
+              autoFsck:(BOOL)autoFsck {
     // NSLog(@"Path: '%@'; Password: '%@'\n", diskFilePath, password);
-    NSString *mountCommand = [NSString stringWithFormat:@"/usr/bin/printf '%@' | /usr/bin/hdiutil attach -stdinpass %@", password, diskFilePath];
+    NSString *mountCommand = [NSString stringWithFormat:@"/usr/bin/printf '%@' | /usr/bin/hdiutil attach -noverify %@ -mountpoint %@ -stdinpass %@", password, ((autoFsck) ? @"-autofsck" : @"-noautofsck"), mountPoint, diskFilePath];
     
     // NSLog(@"Command: %@\n", mountCommand);
     
