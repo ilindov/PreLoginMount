@@ -4,6 +4,12 @@
 <dict>
 	<key>Common</key>
 	<dict>
+		<key>PathToSh</key>
+		<string>/bin/sh</string>
+		<key>PathToPrintf</key>
+		<string>/usr/bin/printf</string>
+		<key>PathToHdiutil</key>
+		<string>/usr/bin/hdiutil</string>
 		<key>FlagDirectory</key>
 		<string>/opt/PreLoginMount/flags</string>
 	</dict>
@@ -15,10 +21,16 @@
 			<string>/opt/PreLoginMount/Disks/ilia.sparsebundle</string>
 			<key>MountPoint</key>
 			<string>/Users/ilia</string>
+			<key>ReadOnly</key>
+			<false/>
 			<key>FsckOnMount</key>
 			<true/>
-			<key>Browseable</key>
+			<key>VerifyImage</key>
+			<false/>
+			<key>IgnoreBadChecksum</key>
 			<true/>
+			<key>Browseable</key>
+			<false/>
 			<key>HonorOwners</key>
 			<true/>
 			<key>Encrypted</key>
@@ -30,10 +42,16 @@
 			<string>/opt/PreLoginMount/Disks/petya.sparsebundle</string>
 			<key>MountPoint</key>
 			<string>/Users/petya</string>
+			<key>ReadOnly</key>
+			<false/>
 			<key>FsckOnMount</key>
 			<true/>
-			<key>Browseable</key>
+			<key>VerifyImage</key>
+			<false/>
+			<key>IgnoreBadChecksum</key>
 			<true/>
+			<key>Browseable</key>
+			<false/>
 			<key>HonorOwners</key>
 			<true/>
 			<key>Encrypted</key>

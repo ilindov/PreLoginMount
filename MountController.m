@@ -6,16 +6,15 @@
 //
 //
 
-// TODO: Add verbose logging functionality
+// TODO: Add verbose logging functionality and more informative status messages
 // TODO: To be able to mount without mountPoint, i.e. in /Volumes
-
-// HINT: hdiutil attach -verbose -stdinpass -autofsck -nobrowse -owners on -mountpoint /Users/ilia ~/Desktop/test.sparsebundle
 
 #import "MountController.h"
 
 @implementation MountController
 
 NSDictionary *usersDataStructure;
+NSDictionary *commonSettings;
 
 - (void) awakeFromNib{
     [usersList removeAllItems];
@@ -24,6 +23,8 @@ NSDictionary *usersDataStructure;
     // NSLog(@"%@\n", configuration);
     
     usersDataStructure = [configuration objectForKey:@"Users"];
+    commonSettings = [configuration objectForKey:@"Common"];
+    
     NSArray *userNames = [usersDataStructure allKeys];
     
     // TODO: Fail if array elements are 0
@@ -37,16 +38,9 @@ NSDictionary *usersDataStructure;
 
 - (IBAction)mountRequested:(id)sender{
     // TODO: sanitize the password value - escape special chars
-    [statusField setObjectValue:@"Attempting to mount..."];
+    [statusField setObjectValue:@"Checking disk and mounting..."];
     
-    NSString *diskFilePath = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
-    NSString *mountPoint = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"MountPoint"];
-    BOOL autoFsck = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"];
-    
-    BOOL result = [self attemptToMount:diskFilePath
-                          withPassword:[diskUnlockPassword objectValue]
-                            mountPoint:mountPoint
-                              autoFsck:autoFsck];
+    BOOL result = [self attemptToMountWithPassword:[diskUnlockPassword objectValue]];
     
     if (result){
         [NSApp terminate:self];
@@ -57,19 +51,57 @@ NSDictionary *usersDataStructure;
     }
 }
 
-- (BOOL)attemptToMount:(NSString *)diskFilePath
-          withPassword:(NSString *)password
-            mountPoint:(NSString *)mountPoint
-              autoFsck:(BOOL)autoFsck {
+// HINT: hdiutil attach -verbose -stdinpass -autofsck -nobrowse -owners on -mountpoint /Users/ilia ~/Desktop/test.sparsebundle
+
+- (BOOL)attemptToMountWithPassword:(NSString *)password {
     // NSLog(@"Path: '%@'; Password: '%@'\n", diskFilePath, password);
-    NSString *mountCommand = [NSString stringWithFormat:@"/usr/bin/printf '%@' | /usr/bin/hdiutil attach -noverify %@ -mountpoint %@ -stdinpass %@", password, ((autoFsck) ? @"-autofsck" : @"-noautofsck"), mountPoint, diskFilePath];
+    
+    NSString *parameterDiskImage = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
+    NSString *parameterMountPoint = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"MountPoint"];
+    BOOL parameterReadOnly = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"ReadOnly"] boolValue];
+    BOOL parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
+    BOOL parameterVerifyImage = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"VerifyImage"] boolValue];
+    BOOL parameterIgnoreBadChecksum = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"IgnoreBadChecksum"] boolValue];
+    BOOL parameterBrowseable = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"Browseable"] boolValue];
+    BOOL parameterHonorOwners = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"HonorOwners"] boolValue];
+    BOOL parameterEncrypted = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"Encrypted"] boolValue];
+    
+    
+    NSString *mountCommand = [NSString stringWithFormat:@"%@ %@ attach \
+                                %@ \
+                                %@ \
+                                %@ \
+                                %@ \
+                                %@ \
+                                %@ \
+                                -nokernel \
+                                -noautoopen \
+                                -owners %@ \
+                                %@ \
+                                \"%@\"",
+                              ((parameterEncrypted) ? [[[[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToPrintf"]]
+                                    stringByAppendingString:@"\" \""]
+                                    stringByAppendingString:password]
+                                    stringByAppendingString:@"\" | "] : @""),
+                              [[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToHdiutil"]] stringByAppendingString:@"\""],
+                              ((parameterEncrypted) ? @"-stdinpass" : @""),
+                              ((parameterFsckOnMount) ? @"-autofsck" : @"-noautofsck"),
+                              ((!parameterBrowseable) ? @"-nobrowse" : @""),
+                              ((parameterReadOnly) ? @"-readonly" : @"-readwrite"),
+                              ((parameterVerifyImage) ? @"-verify" : @"-noverify"),
+                              ((parameterVerifyImage) ? ((parameterIgnoreBadChecksum) ? @"-ignorebadchecksums" : @"-noignorebadchecksums") : @""),
+                              ((parameterHonorOwners) ? @"on" : @"off"),
+                              (([parameterMountPoint length] > 0) ? [[@"-mountpoint \""
+                                                                        stringByAppendingString:parameterMountPoint]
+                                                                        stringByAppendingString:@"\""] : @""),
+                              parameterDiskImage];
     
     // NSLog(@"Command: %@\n", mountCommand);
     
     @try {
         
         NSTask *execution = [[NSTask alloc] init];
-        [execution setLaunchPath:@"/bin/bash"];
+        [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
         [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
         [execution launch];
         [execution waitUntilExit];
