@@ -54,26 +54,18 @@ NSDictionary *commonSettings;
 - (IBAction)mountRequested:(id) __unused sender{
     // TODO: sanitize the password value - escape special chars
     
-    BOOL result = [self attemptToMountWithPassword:[diskUnlockPassword objectValue]];
-    
     [spinner startAnimation:self];
-    if ([verboseMode state]){
+    if ([checkIntegrity state]){
         [statusField setObjectValue:@"Check and mount..."];
     }
     else {
         [statusField setObjectValue:@"Mounting..."];
     }
     
-    if (result){
-        [NSApp terminate:self];
-    }
-    else {
-        // TODO: sleep 3s.
-        [statusField setObjectValue:@"Mount failed..."];
-    }
+    [self attemptToMountWithPassword:[diskUnlockPassword objectValue]];
 }
 
-- (BOOL)attemptToMountWithPassword:(NSString *)password {
+- (void)attemptToMountWithPassword:(NSString *)password {
     // NSLog(@"Path: '%@'; Password: '%@'\n", diskFilePath, password);
     
     NSString *parameterDiskImage = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
@@ -117,26 +109,39 @@ NSDictionary *commonSettings;
     
     // NSLog(@"Command: %@\n", mountCommand);
     
-    @try {
-        NSTask *execution = [[NSTask alloc] init];
-        
-        [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
-        [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
-        [execution launch];
-        //[execution waitUntilExit];
-        // NSLog(@"Status: %d\n", [execution terminationStatus]);
-        while ([execution isRunning]) {
-            NSLog(@"Looping");
-            sleep(1);
+//
+    NSTask *execution = [[NSTask alloc] init];
+    
+    [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
+    [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
+    
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    [queue addOperationWithBlock:^(void) {
+        @try {
+            [execution launch];
+            [execution waitUntilExit];
         }
-        if (![execution terminationStatus])
-            return YES;
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Exception - %@", [exception reason]);
-    }
+        @catch (NSException *exception) {
+            NSLog(@"Exception - %@", [exception reason]);
+        }
 
-    return NO;
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^(void){
+            [self mountAttemptEndedWithStatus:[execution terminationStatus]];
+        }];
+    }];
+}
+
+- (void)mountAttemptEndedWithStatus:(NSInteger)status{
+    NSLog(@"AAA: %ld", (long)status);
+    if (!status){
+        [NSApp terminate:self];
+    }
+    else {
+        sleep(3);
+        
+        [statusField setObjectValue:@"Mount failed..."];
+        [spinner stopAnimation:self];
+    }
 }
 
 - (IBAction)showVerboseLog:(id) sender{
