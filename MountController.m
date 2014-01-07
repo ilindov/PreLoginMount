@@ -8,6 +8,8 @@
 
 // TODO: Add verbose logging functionality and more informative status messages
 // TODO: Memory management
+// TODO: User names sorting
+// TODO: Remember last selected user
 
 #import "MountController.h"
 
@@ -145,9 +147,16 @@ NSDictionary *commonSettings;
 }
 
 - (IBAction)showVerboseLog:(id) sender{
+    //CGFloat smallWindowHeight = ;
     
     NSLog(@"Verbose: %ld\n", [verboseMode state]);
     NSLog(@"Sender is: %@", [[sender window] class]);
+    CGFloat width = [[sender window] frame].size.height;
+    NSRect frame = [[sender window] frame];
+    frame.size.height = 500.0;
+    [[sender window] setFrame:frame display:YES animate:YES];
+    
+    NSLog(@"Size: %f", width);
 }
 
 @end

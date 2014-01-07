@@ -21,7 +21,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" id="212">
-                        <rect key="frame" x="378" y="147" width="39" height="19"/>
+                        <rect key="frame" x="371" y="135" width="39" height="19"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <buttonCell key="cell" type="roundRect" title="Quit" bezelStyle="roundedRect" alignment="center" borderStyle="border" inset="2" id="218">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -110,7 +110,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
                     <button appearanceType="aqua" id="NRp-Ji-kcA">
-                        <rect key="frame" x="252" y="108" width="160" height="18"/>
+                        <rect key="frame" x="252" y="96" width="160" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Check image integrity" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="IA8-Qj-okv">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -118,7 +118,7 @@
                         </buttonCell>
                     </button>
                     <button appearanceType="aqua" id="mtD-qm-b15">
-                        <rect key="frame" x="252" y="78" width="112" height="18"/>
+                        <rect key="frame" x="252" y="66" width="112" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Verbose mode" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="s3o-aL-S0F">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
