@@ -16,9 +16,10 @@
     IBOutlet NSProgressIndicator *spinner;
     IBOutlet NSButton *checkIntegrity;
     IBOutlet NSButton *verboseMode;
+    IBOutlet NSButton *mountButton;
 }
 
-- (IBAction)mountRequested:(id)sender;
+- (IBAction)attemptToMountWithPassword:(id)sender;
 - (IBAction)showVerboseLog:(id)sender;
 
 @end

@@ -51,7 +51,7 @@
                             <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
-                            <action selector="mountRequested:" target="TuR-mY-vgi" id="kB2-I9-jnj"/>
+                            <action selector="attemptToMountWithPassword:" target="TuR-mY-vgi" id="jQk-DG-NLJ"/>
                         </connections>
                     </button>
                     <textField appearanceType="aqua" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="ABn-XB-s4Q">
@@ -140,6 +140,7 @@
             <connections>
                 <outlet property="checkIntegrity" destination="NRp-Ji-kcA" id="2By-vA-9Cs"/>
                 <outlet property="diskUnlockPassword" destination="L7i-5e-4gn" id="wSq-gh-ozZ"/>
+                <outlet property="mountButton" destination="8ON-p2-3D4" id="WwY-OT-uHI"/>
                 <outlet property="spinner" destination="guf-rl-utL" id="59Q-1b-goE"/>
                 <outlet property="statusField" destination="PE0-JA-phU" id="09R-gU-xpX"/>
                 <outlet property="usersList" destination="4un-ua-tyX" id="upE-pQ-fWl"/>

@@ -51,22 +51,9 @@ NSDictionary *commonSettings;
     [statusField setObjectValue:@"Initialized..."];
 }
 
-- (IBAction)mountRequested:(id) __unused sender{
+- (IBAction)attemptToMountWithPassword:(id) __unused sender {
     // TODO: sanitize the password value - escape special chars
-    
-    [spinner startAnimation:self];
-    if ([checkIntegrity state]){
-        [statusField setObjectValue:@"Check and mount..."];
-    }
-    else {
-        [statusField setObjectValue:@"Mounting..."];
-    }
-    
-    [self attemptToMountWithPassword:[diskUnlockPassword objectValue]];
-}
-
-- (void)attemptToMountWithPassword:(NSString *)password {
-    // NSLog(@"Path: '%@'; Password: '%@'\n", diskFilePath, password);
+    NSString *password = [diskUnlockPassword objectValue];
     
     NSString *parameterDiskImage = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
     NSString *parameterMountPoint = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"MountPoint"];
@@ -76,7 +63,6 @@ NSDictionary *commonSettings;
     BOOL parameterBrowseable = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"Browseable"] boolValue];
     BOOL parameterHonorOwners = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"HonorOwners"] boolValue];
     BOOL parameterEncrypted = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"Encrypted"] boolValue];
-    
     
     NSString *mountCommand = [NSString stringWithFormat:@"%@ %@ attach \
                                 %@ \
@@ -107,10 +93,20 @@ NSDictionary *commonSettings;
                                                                         stringByAppendingString:@"\""] : @""),
                               parameterDiskImage];
     
-    // NSLog(@"Command: %@\n", mountCommand);
-    
-//
     NSTask *execution = [[NSTask alloc] init];
+    
+    [checkIntegrity setEnabled:NO];
+    [verboseMode setEnabled:NO];
+    [usersList setEnabled:NO];
+    [diskUnlockPassword setEnabled:NO];
+    [mountButton setEnabled:NO];
+    [spinner startAnimation:self];
+    if ([checkIntegrity state]){
+        [statusField setObjectValue:@"Check and mount..."];
+    }
+    else {
+        [statusField setObjectValue:@"Mounting..."];
+    }
     
     [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
     [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
@@ -120,6 +116,8 @@ NSDictionary *commonSettings;
         @try {
             [execution launch];
             [execution waitUntilExit];
+            if ([execution terminationStatus])
+                [NSThread sleepForTimeInterval:3.0];
         }
         @catch (NSException *exception) {
             NSLog(@"Exception - %@", [exception reason]);
@@ -132,15 +130,17 @@ NSDictionary *commonSettings;
 }
 
 - (void)mountAttemptEndedWithStatus:(NSInteger)status{
-    NSLog(@"AAA: %ld", (long)status);
     if (!status){
         [NSApp terminate:self];
     }
     else {
-        sleep(3);
-        
+        [checkIntegrity setEnabled:YES];
+        [verboseMode setEnabled:YES];
+        [usersList setEnabled:YES];
+        [diskUnlockPassword setEnabled:YES];
         [statusField setObjectValue:@"Mount failed..."];
         [spinner stopAnimation:self];
+        [mountButton setEnabled:YES];
     }
 }
 
