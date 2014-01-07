@@ -177,7 +177,7 @@ static void HandleSIGTERMFromRunLoop(CFFileDescriptorRef f, CFOptionFlags callBa
 
 @interface Me : NSObject
 {
-    IBOutlet NSPanel *  panel;
+    IBOutlet NSPanel * panel;
 }
 - (void)applicationDidFinishLaunching:(NSNotification *)notification;
 @end

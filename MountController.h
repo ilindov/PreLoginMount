@@ -13,8 +13,12 @@
     IBOutlet NSTextField *statusField;
     IBOutlet NSPopUpButton *usersList;
     IBOutlet NSSecureTextFieldCell *diskUnlockPassword;
+    IBOutlet NSProgressIndicator *spinner;
+    IBOutlet NSButton *checkIntegrity;
+    IBOutlet NSButton *verboseMode;
 }
 
 - (IBAction)mountRequested:(id)sender;
+- (IBAction)showVerboseLog:(id)sender;
 
 @end

@@ -7,7 +7,7 @@
 //
 
 // TODO: Add verbose logging functionality and more informative status messages
-// TODO: To be able to mount without mountPoint, i.e. in /Volumes
+// TODO: Memory management
 
 #import "MountController.h"
 
@@ -17,30 +17,52 @@ NSDictionary *usersDataStructure;
 NSDictionary *commonSettings;
 
 - (void) awakeFromNib{
-    [usersList removeAllItems];
-    
+    NSArray *userNames;
+    BOOL parameterFsckOnMount;
     NSDictionary *configuration = [[NSDictionary alloc] initWithContentsOfFile:@"/etc/PreLoginMount.plist"];
-    // NSLog(@"%@\n", configuration);
     
     usersDataStructure = [configuration objectForKey:@"Users"];
     commonSettings = [configuration objectForKey:@"Common"];
+    userNames = [usersDataStructure allKeys];
     
-    NSArray *userNames = [usersDataStructure allKeys];
+    if(![userNames count]){
+        NSString *messageText = @"Critical configuration error!";
+        NSString *informativeText = @"Configuration file (/etc/PreLoginMount.plist) is missing or corrupt, or no users are defined.";
+        NSAlert *alert = [[NSAlert alloc] init];
+        
+        NSLog(@"%@: %@", messageText, informativeText);
+        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert setMessageText:messageText];
+        [alert setInformativeText:informativeText];
+        [alert runModal];
+        [NSApp terminate:self];
+    }
     
-    // TODO: Fail if array elements are 0
-    
+    [usersList removeAllItems];
     for(NSString *name in userNames){
         [usersList addItemWithTitle:name];
     }
     
+    parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
+    
+    [spinner setDisplayedWhenStopped:NO];
+    ((parameterFsckOnMount) ? [checkIntegrity setState:NSOnState] : [checkIntegrity setState:NSOffState]);
+    [verboseMode setState:NSOffState];
     [statusField setObjectValue:@"Initialized..."];
 }
 
-- (IBAction)mountRequested:(id)sender{
+- (IBAction)mountRequested:(id) __unused sender{
     // TODO: sanitize the password value - escape special chars
-    [statusField setObjectValue:@"Checking disk and mounting..."];
     
     BOOL result = [self attemptToMountWithPassword:[diskUnlockPassword objectValue]];
+    
+    [spinner startAnimation:self];
+    if ([verboseMode state]){
+        [statusField setObjectValue:@"Check and mount..."];
+    }
+    else {
+        [statusField setObjectValue:@"Mounting..."];
+    }
     
     if (result){
         [NSApp terminate:self];
@@ -51,15 +73,12 @@ NSDictionary *commonSettings;
     }
 }
 
-// HINT: hdiutil attach -verbose -stdinpass -autofsck -nobrowse -owners on -mountpoint /Users/ilia ~/Desktop/test.sparsebundle
-
 - (BOOL)attemptToMountWithPassword:(NSString *)password {
     // NSLog(@"Path: '%@'; Password: '%@'\n", diskFilePath, password);
     
     NSString *parameterDiskImage = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
     NSString *parameterMountPoint = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"MountPoint"];
     BOOL parameterReadOnly = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"ReadOnly"] boolValue];
-    BOOL parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
     BOOL parameterVerifyImage = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"VerifyImage"] boolValue];
     BOOL parameterIgnoreBadChecksum = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"IgnoreBadChecksum"] boolValue];
     BOOL parameterBrowseable = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"Browseable"] boolValue];
@@ -85,7 +104,7 @@ NSDictionary *commonSettings;
                                     stringByAppendingString:@"\" | "] : @""),
                               [[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToHdiutil"]] stringByAppendingString:@"\""],
                               ((parameterEncrypted) ? @"-stdinpass" : @""),
-                              ((parameterFsckOnMount) ? @"-autofsck" : @"-noautofsck"),
+                              (([checkIntegrity state]) ? @"-autofsck" : @"-noautofsck"),
                               ((!parameterBrowseable) ? @"-nobrowse" : @""),
                               ((parameterReadOnly) ? @"-readonly" : @"-readwrite"),
                               ((parameterVerifyImage) ? @"-verify" : @"-noverify"),
@@ -99,13 +118,17 @@ NSDictionary *commonSettings;
     // NSLog(@"Command: %@\n", mountCommand);
     
     @try {
-        
         NSTask *execution = [[NSTask alloc] init];
+        
         [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
         [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
         [execution launch];
-        [execution waitUntilExit];
+        //[execution waitUntilExit];
         // NSLog(@"Status: %d\n", [execution terminationStatus]);
+        while ([execution isRunning]) {
+            NSLog(@"Looping");
+            sleep(1);
+        }
         if (![execution terminationStatus])
             return YES;
     }
@@ -114,6 +137,12 @@ NSDictionary *commonSettings;
     }
 
     return NO;
+}
+
+- (IBAction)showVerboseLog:(id) sender{
+    
+    NSLog(@"Verbose: %ld\n", [verboseMode state]);
+    NSLog(@"Sender is: %@", [[sender window] class]);
 }
 
 @end
