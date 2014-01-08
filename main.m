@@ -220,6 +220,10 @@ static void HandleSIGTERMFromRunLoop(CFFileDescriptorRef f, CFOptionFlags callBa
     (void) asl_log(gASLClient, gASLMessage, ASL_LEVEL_INFO, "-[Me applicationDidFinishLaunching:] end");
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *) __unused sender {
+    return YES;
+}
+
 @end
 
 int main(int argc, char *argv[])

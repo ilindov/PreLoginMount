@@ -17,6 +17,7 @@
     IBOutlet NSButton *checkIntegrity;
     IBOutlet NSButton *verboseMode;
     IBOutlet NSButton *mountButton;
+    IBOutlet NSTextView *verboseLogArea;
 }
 
 - (IBAction)attemptToMountWithPassword:(id)sender;

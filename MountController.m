@@ -17,6 +17,8 @@
 
 NSDictionary *usersDataStructure;
 NSDictionary *commonSettings;
+NSRect originalFrame;
+NSRect resizedFrame;
 
 - (void) awakeFromNib{
     NSArray *userNames;
@@ -50,6 +52,9 @@ NSDictionary *commonSettings;
     [spinner setDisplayedWhenStopped:NO];
     ((parameterFsckOnMount) ? [checkIntegrity setState:NSOnState] : [checkIntegrity setState:NSOffState]);
     [verboseMode setState:NSOffState];
+    
+    [[verboseLogArea enclosingScrollView] setHidden:YES];
+    
     [statusField setObjectValue:@"Initialized..."];
 }
 
@@ -147,16 +152,26 @@ NSDictionary *commonSettings;
 }
 
 - (IBAction)showVerboseLog:(id) sender{
-    //CGFloat smallWindowHeight = ;
+    if(NSIsEmptyRect(originalFrame))
+        originalFrame = [[sender window] frame];
+    if(NSIsEmptyRect(resizedFrame)){
+        CGFloat increaseBy = 150.0f;
+        
+        resizedFrame = originalFrame;
+        resizedFrame.size.height += increaseBy;
+        resizedFrame.origin.y -= increaseBy;
+    }
     
-    NSLog(@"Verbose: %ld\n", [verboseMode state]);
-    NSLog(@"Sender is: %@", [[sender window] class]);
-    CGFloat width = [[sender window] frame].size.height;
-    NSRect frame = [[sender window] frame];
-    frame.size.height = 500.0;
-    [[sender window] setFrame:frame display:YES animate:YES];
-    
-    NSLog(@"Size: %f", width);
+    if ([verboseMode state]){
+    // increase window height
+        [[sender window] setFrame:resizedFrame display:YES animate:YES];
+        [[verboseLogArea enclosingScrollView] setHidden:NO];
+    }
+    else {
+    // put back the window height to the original value
+        [[verboseLogArea enclosingScrollView] setHidden:YES];
+        [[sender window] setFrame:originalFrame display:YES animate:YES];
+    }
 }
 
 @end
