@@ -17,10 +17,12 @@
     IBOutlet NSButton *checkIntegrity;
     IBOutlet NSButton *verboseMode;
     IBOutlet NSButton *mountButton;
+    IBOutlet NSButton *clearVerboseLogArea;
     IBOutlet NSTextView *verboseLogArea;
 }
 
 - (IBAction)attemptToMountWithPassword:(id)sender;
 - (IBAction)showVerboseLog:(id)sender;
+- (IBAction)clearVerboseLog:(id)sender;
 
 @end

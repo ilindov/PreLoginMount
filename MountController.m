@@ -54,6 +54,7 @@ NSRect resizedFrame;
     [verboseMode setState:NSOffState];
     
     [[verboseLogArea enclosingScrollView] setHidden:YES];
+    [clearVerboseLogArea setHidden:YES];
     
     [statusField setObjectValue:@"Initialized..."];
 }
@@ -166,12 +167,27 @@ NSRect resizedFrame;
     // increase window height
         [[sender window] setFrame:resizedFrame display:YES animate:YES];
         [[verboseLogArea enclosingScrollView] setHidden:NO];
+        [clearVerboseLogArea setHidden:NO];
+        NSRect verboseLogAreaFrame = [[verboseLogArea enclosingScrollView] frame];
+        verboseLogAreaFrame.origin.y = 18.0f;
+        verboseLogAreaFrame.origin.x = 18.0f;
+        verboseLogAreaFrame.size.height = 130.0f;
+        verboseLogAreaFrame.size.width = resizedFrame.size.width - 18.0f*2;
+        [[verboseLogArea enclosingScrollView] setFrame:verboseLogAreaFrame];
     }
     else {
     // put back the window height to the original value
         [[verboseLogArea enclosingScrollView] setHidden:YES];
         [[sender window] setFrame:originalFrame display:YES animate:YES];
+        [clearVerboseLogArea setHidden:YES];
     }
+}
+
+- (IBAction)clearVerboseLog:(id) __unused sender{
+    [verboseLogArea setString:@""];
+    [verboseLogArea insertText:@"qqqqq"];
+    [verboseLogArea insertNewline:nil];
+    [verboseLogArea insertText:@";;;;;"];
 }
 
 @end
