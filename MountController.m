@@ -6,8 +6,6 @@
 //
 //
 
-// TODO: Memory management
-
 #import "MountController.h"
 
 @implementation MountController
@@ -22,16 +20,21 @@ NSRect originalFrame;
 NSRect resizedFrame;
 NSRect resizedVerboseLogArea;
 
+// Initilize the NSPanel
 - (void) awakeFromNib{
     NSArray *userNames;
     BOOL parameterFsckOnMount;
-    configuration = [[NSDictionary alloc] initWithContentsOfFile:configurationFile];
     
+    // Load configuration from plist file
+    configuration = [[NSDictionary alloc] initWithContentsOfFile:configurationFile];
     usersDataStructure = [configuration objectForKey:@"Users"];
     commonSettings = [configuration objectForKey:@"Common"];
     metaSettings = [configuration objectForKey:@"Meta"];
+    
+    // Generate array of user names to fill the users pop-up button
     userNames = [[usersDataStructure allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     
+    // Check if configuration is OK
     if(![userNames count]){
         NSString *messageText = @"Critical configuration error!";
         NSString *informativeText = @"Configuration file (/etc/PreLoginMount.plist) is missing or corrupt, or no users are defined.";
@@ -53,26 +56,25 @@ NSRect resizedVerboseLogArea;
     [usersList selectItemWithTitle:[metaSettings objectForKey:@"LastUser"]];
     
     parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
+    ((parameterFsckOnMount) ? [checkIntegrity setState:NSOnState] : [checkIntegrity setState:NSOffState]);
     
     [spinner setDisplayedWhenStopped:NO];
-    ((parameterFsckOnMount) ? [checkIntegrity setState:NSOnState] : [checkIntegrity setState:NSOffState]);
-    [verboseMode setState:NSOffState];
     
+    [verboseMode setState:NSOffState];
     [[verboseLogArea enclosingScrollView] setHidden:YES];
     [verboseLogArea setFont:[NSFont fontWithName:@"Courier" size:11]];
-    
     [clearVerboseLogArea setHidden:YES];
+    
     [closeAndContinueButton setHidden:YES];
     
     [statusField setObjectValue:@"Initialized..."];
 }
 
 - (IBAction)attemptToMountWithPassword:(id) __unused sender {
-    // TODO: sanitize the password value - escape special chars
     NSPipe *standardOut;
     NSFileHandle *readHandle;
 
-    NSString *password = [diskUnlockPassword objectValue];
+    NSString *password = [self sanitizePassword:[diskUnlockPassword objectValue]];
     
     NSString *parameterDiskImage = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
     NSString *parameterMountPoint = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"MountPoint"];
@@ -97,9 +99,9 @@ NSRect resizedVerboseLogArea;
                                 %@ \
                                 \"%@\"",
                               ((parameterEncrypted) ? [[[[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToPrintf"]]
-                                    stringByAppendingString:@"\" '"]
+                                    stringByAppendingString:@"\" \""]
                                     stringByAppendingString:password]
-                                    stringByAppendingString:@"' | "] : @""),
+                                    stringByAppendingString:@"\" | "] : @""),
                               [[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToHdiutil"]] stringByAppendingString:@"\""],
                               ((parameterEncrypted) ? @"-stdinpass" : @""),
                               (([checkIntegrity state]) ? @"-autofsck" : @"-noautofsck"),
@@ -113,10 +115,6 @@ NSRect resizedVerboseLogArea;
                                                                         stringByAppendingString:parameterMountPoint]
                                                                         stringByAppendingString:@"\""] : @""),
                               parameterDiskImage];
-    
-    // DELME!!!
-    NSLog(@"CMD: '%@'\n", mountCommand);
-    
     
     NSTask *execution = [[NSTask alloc] init];
     
@@ -133,6 +131,7 @@ NSRect resizedVerboseLogArea;
         [statusField setObjectValue:@"Mounting..."];
     }
     
+    // Use the verobose text view only if verbose mode is selected
     if ([verboseMode state]){
         standardOut = [[NSPipe alloc] init];
         readHandle = [standardOut fileHandleForReading];
@@ -143,6 +142,7 @@ NSRect resizedVerboseLogArea;
     [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
     [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
     
+    // Execute in a background thread
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [queue addOperationWithBlock:^(void) {
         NSString *verboseText = nil;
@@ -156,6 +156,7 @@ NSRect resizedVerboseLogArea;
                 verboseText = [[NSString alloc] initWithData:[readHandle availableData] encoding:NSUTF8StringEncoding];
             }
             
+            // Wait for 3 secs if wrong pass is entered (or some other error occured)
             if ([execution terminationStatus])
                 [NSThread sleepForTimeInterval:3.0];
         }
@@ -163,12 +164,14 @@ NSRect resizedVerboseLogArea;
             NSLog(@"Exception - %@", [exception reason]);
         }
 
+        // Update UI from the main thread
         [[NSOperationQueue mainQueue] addOperationWithBlock:^(void){
             [self mountAttemptEndedWithStatus:[execution terminationStatus] verboseOutput:verboseText];
         }];
     }];
 }
 
+// Check hdiutil exit status and act accordingly
 - (void)mountAttemptEndedWithStatus:(NSInteger)status verboseOutput:(NSString *)verboseText{
     [metaSettings setObject:[usersList titleOfSelectedItem] forKey:@"LastUser"];
     [configuration writeToFile:configurationFile atomically:YES];
@@ -199,6 +202,7 @@ NSRect resizedVerboseLogArea;
     }
 }
 
+// Resize main panel an reposition some elements to fit the verbose log
 - (IBAction)showVerboseLog:(id) sender{
     if (NSIsEmptyRect(originalFrame))
         originalFrame = [[sender window] frame];
@@ -238,6 +242,20 @@ NSRect resizedVerboseLogArea;
 
 - (IBAction)closeApplication:(id) __unused sender{
     [NSApp terminate:self];
+}
+
+// Remove the following special characters, which cause printf to fail if used in password
+// ` " ! % and [backslash]
+- (NSString *)sanitizePassword:(NSMutableString *)dirtyPassword{
+    NSMutableString *cleanPassword = [NSMutableString stringWithString:dirtyPassword];
+    
+    [cleanPassword replaceOccurrencesOfString:@"\\" withString:@"\\\\" options:NSLiteralSearch range:NSMakeRange(0, [cleanPassword length])];
+    [cleanPassword replaceOccurrencesOfString:@"%" withString:@"%%" options:NSLiteralSearch range:NSMakeRange(0, [cleanPassword length])];
+    [cleanPassword replaceOccurrencesOfString:@"!" withString:@"\\!" options:NSLiteralSearch range:NSMakeRange(0, [cleanPassword length])];
+    [cleanPassword replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:NSLiteralSearch range:NSMakeRange(0, [cleanPassword length])];
+    [cleanPassword replaceOccurrencesOfString:@"`" withString:@"\\`" options:NSLiteralSearch range:NSMakeRange(0, [cleanPassword length])];
+    
+    return cleanPassword;
 }
 
 @end
