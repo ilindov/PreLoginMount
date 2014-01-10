@@ -6,28 +6,31 @@
 //
 //
 
-// TODO: Add verbose logging functionality and more informative status messages
 // TODO: Memory management
-// TODO: User names sorting
-// TODO: Remember last selected user
 
 #import "MountController.h"
 
 @implementation MountController
 
+NSString *configurationFile = @"/etc/PreLoginMount.plist";
+
+NSDictionary *configuration;
 NSDictionary *usersDataStructure;
 NSDictionary *commonSettings;
+NSMutableDictionary *metaSettings;
 NSRect originalFrame;
 NSRect resizedFrame;
+NSRect resizedVerboseLogArea;
 
 - (void) awakeFromNib{
     NSArray *userNames;
     BOOL parameterFsckOnMount;
-    NSDictionary *configuration = [[NSDictionary alloc] initWithContentsOfFile:@"/etc/PreLoginMount.plist"];
+    configuration = [[NSDictionary alloc] initWithContentsOfFile:configurationFile];
     
     usersDataStructure = [configuration objectForKey:@"Users"];
     commonSettings = [configuration objectForKey:@"Common"];
-    userNames = [usersDataStructure allKeys];
+    metaSettings = [configuration objectForKey:@"Meta"];
+    userNames = [[usersDataStructure allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     
     if(![userNames count]){
         NSString *messageText = @"Critical configuration error!";
@@ -47,6 +50,8 @@ NSRect resizedFrame;
         [usersList addItemWithTitle:name];
     }
     
+    [usersList selectItemWithTitle:[metaSettings objectForKey:@"LastUser"]];
+    
     parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
     
     [spinner setDisplayedWhenStopped:NO];
@@ -54,13 +59,19 @@ NSRect resizedFrame;
     [verboseMode setState:NSOffState];
     
     [[verboseLogArea enclosingScrollView] setHidden:YES];
+    [verboseLogArea setFont:[NSFont fontWithName:@"Courier" size:11]];
+    
     [clearVerboseLogArea setHidden:YES];
+    [closeAndContinueButton setHidden:YES];
     
     [statusField setObjectValue:@"Initialized..."];
 }
 
 - (IBAction)attemptToMountWithPassword:(id) __unused sender {
     // TODO: sanitize the password value - escape special chars
+    NSPipe *standardOut;
+    NSFileHandle *readHandle;
+
     NSString *password = [diskUnlockPassword objectValue];
     
     NSString *parameterDiskImage = [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"DiskImage"];
@@ -79,15 +90,16 @@ NSRect resizedFrame;
                                 %@ \
                                 %@ \
                                 %@ \
+                                %@ \
                                 -nokernel \
                                 -noautoopen \
                                 -owners %@ \
                                 %@ \
                                 \"%@\"",
                               ((parameterEncrypted) ? [[[[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToPrintf"]]
-                                    stringByAppendingString:@"\" \""]
+                                    stringByAppendingString:@"\" '"]
                                     stringByAppendingString:password]
-                                    stringByAppendingString:@"\" | "] : @""),
+                                    stringByAppendingString:@"' | "] : @""),
                               [[@"\"" stringByAppendingString:[commonSettings objectForKey:@"PathToHdiutil"]] stringByAppendingString:@"\""],
                               ((parameterEncrypted) ? @"-stdinpass" : @""),
                               (([checkIntegrity state]) ? @"-autofsck" : @"-noautofsck"),
@@ -95,11 +107,16 @@ NSRect resizedFrame;
                               ((parameterReadOnly) ? @"-readonly" : @"-readwrite"),
                               ((parameterVerifyImage) ? @"-verify" : @"-noverify"),
                               ((parameterVerifyImage) ? ((parameterIgnoreBadChecksum) ? @"-ignorebadchecksums" : @"-noignorebadchecksums") : @""),
+                              (([verboseMode state]) ? @"-verbose" : @""),
                               ((parameterHonorOwners) ? @"on" : @"off"),
                               (([parameterMountPoint length] > 0) ? [[@"-mountpoint \""
                                                                         stringByAppendingString:parameterMountPoint]
                                                                         stringByAppendingString:@"\""] : @""),
                               parameterDiskImage];
+    
+    // DELME!!!
+    NSLog(@"CMD: '%@'\n", mountCommand);
+    
     
     NSTask *execution = [[NSTask alloc] init];
     
@@ -116,14 +133,29 @@ NSRect resizedFrame;
         [statusField setObjectValue:@"Mounting..."];
     }
     
+    if ([verboseMode state]){
+        standardOut = [[NSPipe alloc] init];
+        readHandle = [standardOut fileHandleForReading];
+        [execution setStandardOutput:standardOut];
+        [execution setStandardError:standardOut];
+    }
+        
     [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
     [execution setArguments:[[NSArray alloc] initWithObjects:@"-c", mountCommand, nil]];
     
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [queue addOperationWithBlock:^(void) {
+        NSString *verboseText = nil;
+        
         @try {
             [execution launch];
             [execution waitUntilExit];
+            
+            // TODO: Only if verbose mode enabled
+            if([verboseMode state]){
+                verboseText = [[NSString alloc] initWithData:[readHandle availableData] encoding:NSUTF8StringEncoding];
+            }
+            
             if ([execution terminationStatus])
                 [NSThread sleepForTimeInterval:3.0];
         }
@@ -132,14 +164,29 @@ NSRect resizedFrame;
         }
 
         [[NSOperationQueue mainQueue] addOperationWithBlock:^(void){
-            [self mountAttemptEndedWithStatus:[execution terminationStatus]];
+            [self mountAttemptEndedWithStatus:[execution terminationStatus] verboseOutput:verboseText];
         }];
     }];
 }
 
-- (void)mountAttemptEndedWithStatus:(NSInteger)status{
-    if (!status){
+- (void)mountAttemptEndedWithStatus:(NSInteger)status verboseOutput:(NSString *)verboseText{
+    [metaSettings setObject:[usersList titleOfSelectedItem] forKey:@"LastUser"];
+    [configuration writeToFile:configurationFile atomically:YES];
+    
+    if ([verboseMode state]){
+        NSLog(@"%@\n", verboseText);
+        [verboseLogArea setString:@""];
+        [verboseLogArea setString:verboseText];
+    }
+        
+    if (!status && ![verboseMode state]){
         [NSApp terminate:self];
+    }
+    else if (!status && [verboseMode state]){
+        [closeAndContinueButton setHidden:NO];
+        [spinner stopAnimation:self];
+        [statusField setObjectValue:@"Mounted successfully"];
+        [clearVerboseLogArea setEnabled:NO];
     }
     else {
         [checkIntegrity setEnabled:YES];
@@ -153,14 +200,21 @@ NSRect resizedFrame;
 }
 
 - (IBAction)showVerboseLog:(id) sender{
-    if(NSIsEmptyRect(originalFrame))
+    if (NSIsEmptyRect(originalFrame))
         originalFrame = [[sender window] frame];
-    if(NSIsEmptyRect(resizedFrame)){
+    if (NSIsEmptyRect(resizedFrame)){
         CGFloat increaseBy = 150.0f;
         
         resizedFrame = originalFrame;
         resizedFrame.size.height += increaseBy;
         resizedFrame.origin.y -= increaseBy;
+    }
+    if (NSIsEmptyRect(resizedVerboseLogArea)){
+        resizedVerboseLogArea = [[verboseLogArea enclosingScrollView] frame];
+        resizedVerboseLogArea.origin.y = 18.0f;
+        resizedVerboseLogArea.origin.x = 18.0f;
+        resizedVerboseLogArea.size.height = 130.0f;
+        resizedVerboseLogArea.size.width = resizedFrame.size.width - 18.0f*2;
     }
     
     if ([verboseMode state]){
@@ -168,12 +222,7 @@ NSRect resizedFrame;
         [[sender window] setFrame:resizedFrame display:YES animate:YES];
         [[verboseLogArea enclosingScrollView] setHidden:NO];
         [clearVerboseLogArea setHidden:NO];
-        NSRect verboseLogAreaFrame = [[verboseLogArea enclosingScrollView] frame];
-        verboseLogAreaFrame.origin.y = 18.0f;
-        verboseLogAreaFrame.origin.x = 18.0f;
-        verboseLogAreaFrame.size.height = 130.0f;
-        verboseLogAreaFrame.size.width = resizedFrame.size.width - 18.0f*2;
-        [[verboseLogArea enclosingScrollView] setFrame:verboseLogAreaFrame];
+        [[verboseLogArea enclosingScrollView] setFrame:resizedVerboseLogArea];
     }
     else {
     // put back the window height to the original value
@@ -185,9 +234,10 @@ NSRect resizedFrame;
 
 - (IBAction)clearVerboseLog:(id) __unused sender{
     [verboseLogArea setString:@""];
-    [verboseLogArea insertText:@"qqqqq"];
-    [verboseLogArea insertNewline:nil];
-    [verboseLogArea insertText:@";;;;;"];
+}
+
+- (IBAction)closeApplication:(id) __unused sender{
+    [NSApp terminate:self];
 }
 
 @end

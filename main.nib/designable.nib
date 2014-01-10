@@ -95,7 +95,7 @@
                         </popUpButtonCell>
                     </popUpButton>
                     <progressIndicator appearanceType="aqua" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="guf-rl-utL">
-                        <rect key="frame" x="205" y="16" width="16" height="16"/>
+                        <rect key="frame" x="199" y="16" width="16" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
                     <button appearanceType="aqua" id="NRp-Ji-kcA">
@@ -118,13 +118,13 @@
                         </buttonCell>
                     </button>
                     <scrollView appearanceType="aqua" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="9ze-ZG-aUM">
-                        <rect key="frame" x="245" y="-1" width="31" height="16"/>
+                        <rect key="frame" x="375" y="54" width="31" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" id="ltb-cr-E9W">
                             <rect key="frame" x="1" y="1" width="29" height="14"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <textView importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="vsc-Bm-J0h">
+                                <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="vsc-Bm-J0h">
                                     <rect key="frame" x="0.0" y="0.0" width="29" height="14"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -138,11 +138,11 @@
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         </clipView>
                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="o8x-4i-ONy">
-                            <rect key="frame" x="1" y="119" width="223" height="15"/>
+                            <rect key="frame" x="1" y="0.0" width="14" height="15"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="tNE-Xr-qDL">
-                            <rect key="frame" x="224" y="1" width="15" height="118"/>
+                            <rect key="frame" x="15" y="1" width="15" height="-1"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
@@ -151,10 +151,21 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="roundRect" title="Clear" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aPi-Y1-MMY">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="controlContent"/>
+                            <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
                             <action selector="clearVerboseLog:" target="TuR-mY-vgi" id="fer-qd-nKr"/>
+                        </connections>
+                    </button>
+                    <button appearanceType="aqua" verticalHuggingPriority="750" id="W3N-xB-l1c">
+                        <rect key="frame" x="235" y="13" width="112" height="19"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="roundRect" title="Close &amp; continue" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jy5-jm-Kh5">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="controlContent"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="closeApplication:" target="TuR-mY-vgi" id="olK-Qx-dEa"/>
                         </connections>
                     </button>
                 </subviews>
@@ -169,6 +180,7 @@
             <connections>
                 <outlet property="checkIntegrity" destination="NRp-Ji-kcA" id="2By-vA-9Cs"/>
                 <outlet property="clearVerboseLogArea" destination="bVQ-tO-ukp" id="ofq-7t-Rj2"/>
+                <outlet property="closeAndContinueButton" destination="W3N-xB-l1c" id="9Kf-ea-8n2"/>
                 <outlet property="diskUnlockPassword" destination="L7i-5e-4gn" id="wSq-gh-ozZ"/>
                 <outlet property="mountButton" destination="8ON-p2-3D4" id="WwY-OT-uHI"/>
                 <outlet property="spinner" destination="guf-rl-utL" id="59Q-1b-goE"/>
