@@ -151,17 +151,26 @@ NSRect resizedVerboseLogArea;
     // Execute in a background thread
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [queue addOperationWithBlock:^(void) {
-        NSString *verboseText = nil;
+        NSMutableString *verboseText = [[NSMutableString alloc] init];
         
         @try {
             [execution launch];
-            [execution waitUntilExit];
             
-            // TODO: Only if verbose mode enabled
-            if([verboseMode state]){
-                verboseText = [[NSString alloc] initWithData:[readHandle availableData] encoding:NSUTF8StringEncoding];
+            if ([verboseMode state]){
+                NSData *pipeContents;
+                
+                while ([pipeContents=[readHandle availableData] length]){
+                    if (![execution isRunning])
+                        break;
+                    
+                    NSString *textChunk = [[NSString alloc] initWithData:pipeContents encoding:NSUTF8StringEncoding];
+                    [verboseText appendString:textChunk];
+                }
             }
-            
+            else {
+                [execution waitUntilExit];
+            }
+
             // Wait for 3 secs if wrong pass is entered (or some other error occured)
             if ([execution terminationStatus])
                 [NSThread sleepForTimeInterval:3.0];
