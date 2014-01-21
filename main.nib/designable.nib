@@ -31,6 +31,9 @@
                                 <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                             </allowedInputSourceLocales>
                         </secureTextFieldCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="8ON-p2-3D4" id="U0x-sO-aHR"/>
+                        </connections>
                     </secureTextField>
                     <button appearanceType="aqua" verticalHuggingPriority="750" id="8ON-p2-3D4">
                         <rect key="frame" x="72" y="13" width="111" height="19"/>
@@ -41,6 +44,7 @@
                         </buttonCell>
                         <connections>
                             <action selector="attemptToMountWithPassword:" target="TuR-mY-vgi" id="jQk-DG-NLJ"/>
+                            <outlet property="nextKeyView" destination="NRp-Ji-kcA" id="gTm-2x-9bu"/>
                         </connections>
                     </button>
                     <textField appearanceType="aqua" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="ABn-XB-s4Q">
@@ -93,6 +97,9 @@
                                 </items>
                             </menu>
                         </popUpButtonCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="mZK-Z1-Ioj" id="Tfc-gx-0YV"/>
+                        </connections>
                     </popUpButton>
                     <progressIndicator appearanceType="aqua" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="guf-rl-utL">
                         <rect key="frame" x="199" y="16" width="16" height="16"/>
@@ -105,6 +112,9 @@
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="mtD-qm-b15" id="SPh-NG-n8A"/>
+                        </connections>
                     </button>
                     <button appearanceType="aqua" id="mtD-qm-b15">
                         <rect key="frame" x="248" y="86" width="112" height="18"/>
@@ -116,6 +126,9 @@
                                 <action selector="showVerboseLog:" target="TuR-mY-vgi" id="v5W-FS-Lh6"/>
                             </connections>
                         </buttonCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="4un-ua-tyX" id="HeN-Sx-pTh"/>
+                        </connections>
                     </button>
                     <scrollView appearanceType="aqua" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="9ze-ZG-aUM">
                         <rect key="frame" x="375" y="54" width="31" height="16"/>
@@ -162,7 +175,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="roundRect" title="Close &amp; continue" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jy5-jm-Kh5">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="controlContent"/>
+                            <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
                             <action selector="closeApplication:" target="TuR-mY-vgi" id="olK-Qx-dEa"/>
@@ -170,6 +183,9 @@
                     </button>
                 </subviews>
             </view>
+            <connections>
+                <outlet property="initialFirstResponder" destination="mZK-Z1-Ioj" id="qr6-PO-M6X"/>
+            </connections>
         </window>
         <customObject id="214" userLabel="Me" customClass="Me">
             <connections>

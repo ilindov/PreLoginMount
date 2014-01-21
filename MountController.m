@@ -13,7 +13,7 @@
 NSString *configurationFile = @"/etc/PreLoginMount.plist";
 
 NSDictionary *configuration;
-NSDictionary *usersDataStructure;
+NSMutableDictionary *usersDataStructure;
 NSDictionary *commonSettings;
 NSMutableDictionary *metaSettings;
 NSRect originalFrame;
@@ -24,6 +24,7 @@ NSRect resizedVerboseLogArea;
 - (void) awakeFromNib{
     NSArray *userNames;
     BOOL parameterFsckOnMount;
+    BOOL parameterVerboseMode;
     
     // Load configuration from plist file
     configuration = [[NSDictionary alloc] initWithContentsOfFile:configurationFile];
@@ -55,23 +56,28 @@ NSRect resizedVerboseLogArea;
     
     [usersList selectItemWithTitle:[metaSettings objectForKey:@"LastUser"]];
     
-    parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
-    ((parameterFsckOnMount) ? [checkIntegrity setState:NSOnState] : [checkIntegrity setState:NSOffState]);
-    
-    [spinner setDisplayedWhenStopped:NO];
-    
-    [verboseMode setState:NSOffState];
     [[verboseLogArea enclosingScrollView] setHidden:YES];
     [verboseLogArea setFont:[NSFont fontWithName:@"Courier" size:11]];
     [clearVerboseLogArea setHidden:YES];
-    
     [closeAndContinueButton setHidden:YES];
-    
+    [spinner setDisplayedWhenStopped:NO];
     [statusField setObjectValue:@"Initialized..."];
+    
+    parameterFsckOnMount = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"FsckOnMount"] boolValue];
+    ((parameterFsckOnMount) ? [checkIntegrity setState:NSOnState] : [checkIntegrity setState:NSOffState]);
+    
+    parameterVerboseMode = [[[usersDataStructure objectForKey:[usersList titleOfSelectedItem]] objectForKey:@"VerboseMode"] boolValue];
+    if (parameterVerboseMode){
+        [verboseMode setState:NSOnState];
+        [self showVerboseLog:verboseMode];
+    }
+    else {
+        [verboseMode setState:NSOffState];
+    }
 }
 
 - (IBAction)attemptToMountWithPassword:(id) __unused sender {
-    NSPipe *standardOut;
+    NSPipe *taskOutput;
     NSFileHandle *readHandle;
 
     NSString *password = [self sanitizePassword:[diskUnlockPassword objectValue]];
@@ -133,10 +139,10 @@ NSRect resizedVerboseLogArea;
     
     // Use the verobose text view only if verbose mode is selected
     if ([verboseMode state]){
-        standardOut = [[NSPipe alloc] init];
-        readHandle = [standardOut fileHandleForReading];
-        [execution setStandardOutput:standardOut];
-        [execution setStandardError:standardOut];
+        taskOutput = [[NSPipe alloc] init];
+        readHandle = [taskOutput fileHandleForReading];
+        [execution setStandardOutput:taskOutput];
+        [execution setStandardError:taskOutput];
     }
         
     [execution setLaunchPath:[commonSettings objectForKey:@"PathToSh"]];
@@ -174,7 +180,11 @@ NSRect resizedVerboseLogArea;
 // Check hdiutil exit status and act accordingly
 - (void)mountAttemptEndedWithStatus:(NSInteger)status verboseOutput:(NSString *)verboseText{
     [metaSettings setObject:[usersList titleOfSelectedItem] forKey:@"LastUser"];
-    [configuration writeToFile:configurationFile atomically:YES];
+    [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]]
+     setValue:[NSNumber numberWithBool:[checkIntegrity state]] forKey:@"FsckOnMount"];
+    [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]]
+     setValue:[NSNumber numberWithBool:[verboseMode state]] forKey:@"VerboseMode"];
+    [configuration writeToFile:configurationFile atomically:NO];
     
     if ([verboseMode state]){
         NSLog(@"%@\n", verboseText);
