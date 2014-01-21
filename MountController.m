@@ -57,7 +57,6 @@ NSRect resizedVerboseLogArea;
     [usersList selectItemWithTitle:[metaSettings objectForKey:@"LastUser"]];
     
     [[verboseLogArea enclosingScrollView] setHidden:YES];
-    [verboseLogArea setFont:[NSFont fontWithName:@"Courier" size:11]];
     [clearVerboseLogArea setHidden:YES];
     [closeAndContinueButton setHidden:YES];
     [spinner setDisplayedWhenStopped:NO];
@@ -139,6 +138,7 @@ NSRect resizedVerboseLogArea;
     
     // Use the verobose text view only if verbose mode is selected
     if ([verboseMode state]){
+        [verboseLogArea setString:@""];
         taskOutput = [[NSPipe alloc] init];
         readHandle = [taskOutput fileHandleForReading];
         [execution setStandardOutput:taskOutput];
@@ -151,8 +151,6 @@ NSRect resizedVerboseLogArea;
     // Execute in a background thread
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [queue addOperationWithBlock:^(void) {
-        NSMutableString *verboseText = [[NSMutableString alloc] init];
-        
         @try {
             [execution launch];
             
@@ -162,9 +160,9 @@ NSRect resizedVerboseLogArea;
                 while ([pipeContents=[readHandle availableData] length]){
                     if (![execution isRunning])
                         break;
-                    
-                    NSString *textChunk = [[NSString alloc] initWithData:pipeContents encoding:NSUTF8StringEncoding];
-                    [verboseText appendString:textChunk];
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^(void){
+                        [self updateVerboseLogArea:[[NSString alloc] initWithData:pipeContents encoding:NSUTF8StringEncoding]];
+                    }];
                 }
             }
             else {
@@ -181,13 +179,23 @@ NSRect resizedVerboseLogArea;
 
         // Update UI from the main thread
         [[NSOperationQueue mainQueue] addOperationWithBlock:^(void){
-            [self mountAttemptEndedWithStatus:[execution terminationStatus] verboseOutput:verboseText];
+            [self mountAttemptEndedWithStatus:[execution terminationStatus]];
         }];
     }];
 }
 
+- (void)updateVerboseLogArea:(NSString *)textChunk{
+    NSDictionary *textAttributes = [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Courier" size:11] forKey:NSFontAttributeName];
+    NSAttributedString* attributedString = [[NSAttributedString alloc] initWithString:textChunk attributes:textAttributes];
+    
+    NSLog(@"%@\n", textChunk);
+    
+    [[verboseLogArea textStorage] appendAttributedString:attributedString];
+    [verboseLogArea scrollRangeToVisible:NSMakeRange([[verboseLogArea string] length], 0)];
+}
+
 // Check hdiutil exit status and act accordingly
-- (void)mountAttemptEndedWithStatus:(NSInteger)status verboseOutput:(NSString *)verboseText{
+- (void)mountAttemptEndedWithStatus:(NSInteger)status{
     [metaSettings setObject:[usersList titleOfSelectedItem] forKey:@"LastUser"];
     [[usersDataStructure objectForKey:[usersList titleOfSelectedItem]]
      setValue:[NSNumber numberWithBool:[checkIntegrity state]] forKey:@"FsckOnMount"];
@@ -195,12 +203,6 @@ NSRect resizedVerboseLogArea;
      setValue:[NSNumber numberWithBool:[verboseMode state]] forKey:@"VerboseMode"];
     [configuration writeToFile:configurationFile atomically:NO];
     
-    if ([verboseMode state]){
-        NSLog(@"%@\n", verboseText);
-        [verboseLogArea setString:@""];
-        [verboseLogArea setString:verboseText];
-    }
-        
     if (!status && ![verboseMode state]){
         [NSApp terminate:self];
     }
