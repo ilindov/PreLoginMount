@@ -5,7 +5,7 @@
 	<key>Meta</key>
 	<dict>
 		<key>LastUser</key>
-		<string>Iliya Lindov</string>
+		<string>User 1</string>
 	</dict>
 	<key>Common</key>
 	<dict>
@@ -20,12 +20,12 @@
 	</dict>
 	<key>Users</key>
 	<dict>
-		<key>Iliya Lindov</key>
+		<key>User 1</key>
 		<dict>
 			<key>DiskImage</key>
-			<string>/opt/PreLoginMount/Disks/ilia.sparsebundle</string>
+			<string>/opt/PreLoginMount/Disks/user1.sparsebundle</string>
 			<key>MountPoint</key>
-			<string>/Users/ilia</string>
+			<string>/Volumes/User1Home</string>
 			<key>ReadOnly</key>
 			<false/>
 			<key>FsckOnMount</key>
@@ -41,12 +41,12 @@
 			<key>Encrypted</key>
 			<true/>
 		</dict>
-		<key>Petya Lindova</key>
+		<key>User 2</key>
 		<dict>
 			<key>DiskImage</key>
-			<string>/opt/PreLoginMount/Disks/petya.sparsebundle</string>
+			<string>/opt/PreLoginMount/Disks/user2.sparsebundle</string>
 			<key>MountPoint</key>
-			<string>/Users/petya</string>
+			<string>/Volumes/User2Home</string>
 			<key>ReadOnly</key>
 			<false/>
 			<key>FsckOnMount</key>
