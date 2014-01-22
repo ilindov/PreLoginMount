@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49180C1B1890051A00ED0D18 /* com.lindov.osx.PreLoginMount.plist in Resources */ = {isa = PBXBuildFile; fileRef = 49180C1A1890051A00ED0D18 /* com.lindov.osx.PreLoginMount.plist */; };
 		49328AEC186DC81500873A80 /* MountController.m in Sources */ = {isa = PBXBuildFile; fileRef = 49328AEB186DC81500873A80 /* MountController.m */; };
 		4965B762186B8A10005DC1F6 /* PreLoginMount.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4965B761186B8A10005DC1F6 /* PreLoginMount.plist */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -18,6 +19,7 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		29B97319FDCFA39411CA2CEA /* main.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = main.nib; sourceTree = "<group>"; };
+		49180C1A1890051A00ED0D18 /* com.lindov.osx.PreLoginMount.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = com.lindov.osx.PreLoginMount.plist; sourceTree = "<group>"; };
 		49328AEA186DC81500873A80 /* MountController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MountController.h; sourceTree = "<group>"; };
 		49328AEB186DC81500873A80 /* MountController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MountController.m; sourceTree = "<group>"; };
 		4965B761186B8A10005DC1F6 /* PreLoginMount.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PreLoginMount.plist; sourceTree = "<group>"; };
@@ -52,6 +54,7 @@
 				49328AEA186DC81500873A80 /* MountController.h */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				8D1107310486CEB800E47090 /* Info.plist */,
+				49180C1A1890051A00ED0D18 /* com.lindov.osx.PreLoginMount.plist */,
 				29B97319FDCFA39411CA2CEA /* main.nib */,
 				4965B761186B8A10005DC1F6 /* PreLoginMount.plist */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
@@ -110,6 +113,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49180C1B1890051A00ED0D18 /* com.lindov.osx.PreLoginMount.plist in Resources */,
 				4965B762186B8A10005DC1F6 /* PreLoginMount.plist in Resources */,
 				E4963BD80BCE755900149BD0 /* main.nib in Resources */,
 			);

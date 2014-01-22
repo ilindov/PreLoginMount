@@ -1,6 +1,6 @@
 /*
  
- PreLoginMount - mount filesystems, images, sparsebundles before user logon.
+ PreLoginMount - mount disk images, sparse images and sparse bundles before user logon.
  Copyright (C) 2014  Iliya Lindov
  
  This program is free software; you can redistribute it and/or

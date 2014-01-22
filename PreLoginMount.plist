@@ -40,6 +40,8 @@
 			<true/>
 			<key>Encrypted</key>
 			<true/>
+			<key>VerboseMode</key>
+			<false/>
 		</dict>
 		<key>User 2</key>
 		<dict>
@@ -61,6 +63,8 @@
 			<true/>
 			<key>Encrypted</key>
 			<true/>
+			<key>VerboseMode</key>
+			<false/>
 		</dict>
 	</dict>
 </dict>

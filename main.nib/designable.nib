@@ -106,9 +106,9 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
                     <button appearanceType="aqua" id="NRp-Ji-kcA">
-                        <rect key="frame" x="248" y="116" width="160" height="18"/>
+                        <rect key="frame" x="248" y="116" width="152" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Check image integrity" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="IA8-Qj-okv">
+                        <buttonCell key="cell" type="check" title="Check the filesystem" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="IA8-Qj-okv">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
