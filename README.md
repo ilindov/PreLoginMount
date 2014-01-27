@@ -55,9 +55,9 @@ The software consists of one application and two property list files:
 Installation should be done with a user with administrative rights from terminal.
 - Open Terminal
 - Unzip the archive, e.g:  
-*\# unzip PreLoginMount-current.zip*
+*\# unzip PreLoginMount-\<version\>.zip*
 - Go to the unzipped directory  
-*\# cd ./PreLoginMount-current/*
+*\# cd ./PreLoginMount-\<version\>/*
 - Copy PreLoginMount.plist to /etc/  
 *\# sudo cp PreLoginMount.plist /etc/*
 - Copy com.lindov.osx.PreLoginMount.plist to /Library/LaunchAgents/  
