@@ -119,6 +119,7 @@ NSRect resizedVerboseLogArea;
                                 %@ \
                                 %@ \
                                 %@ \
+                                -notremovable \
                                 -nokernel \
                                 -noautoopen \
                                 -owners %@ \
